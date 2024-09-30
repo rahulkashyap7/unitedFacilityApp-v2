@@ -15,6 +15,7 @@ class OnBoardingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(OnBoardingController());
 
+
     return Scaffold(
       body: Stack(
         children: [
@@ -54,5 +55,8 @@ class OnBoardingScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 

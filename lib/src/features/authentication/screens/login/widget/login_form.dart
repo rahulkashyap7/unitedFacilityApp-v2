@@ -6,7 +6,6 @@ import 'package:united_app/globals.dart';
 import 'package:united_app/src/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:united_app/src/features/authentication/screens/signup/signup.dart';
 import 'package:united_app/src/local_db/credentialsRepository.dart';
-import '../../../../../../navigation_menu.dart';
 import '../../../../../constants/sizes.dart';
 import '../../../../../constants/text_strings.dart';
 import 'package:http/http.dart' as http;
@@ -72,7 +71,7 @@ class _UflLoginFormState extends State<UflLoginForm> {
   //   }
   // }
 
-  void handleLogin() {
+  void validateLogin() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
@@ -91,10 +90,25 @@ class _UflLoginFormState extends State<UflLoginForm> {
       return;
     }
 
-    // Proceed with login if validation passes
-    // Uncomment the following line to call the login server
-    // handleLoginServer(email, password);
-    Get.to(() => const DashboardScreen()); // Temporary navigation for testing
+    http.Response response = await http.post(
+      Uri.parse('http://192.168.1.7:3000/api/v1/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "email": emailController.text,
+        "password": passwordController.text,
+        // "locationId": locationController.text
+        "locationId": locationController
+      }),
+    );
+    final data = jsonDecode(response.body);
+    print("response: $data :: ${data['status']}");
+    if (data['status'] == 200) {
+      Globals.employeeId = data['employeeId'];
+      // Globals.employeeName = ....
+      Get.to(() => const DashboardScreen());
+    }
   }
 
   @override
@@ -173,16 +187,16 @@ class _UflLoginFormState extends State<UflLoginForm> {
             SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: handleLogin, // Call handleLogin on press
+                    onPressed: validateLogin, // Call validateLogin on press
                     child: const Text(UflTexts.logIn))),
             const SizedBox(height: UflSizes.spaceBtwItems),
 
             /// Create Account Button
-            SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                    onPressed: () => Get.to(() => const SignupScreen()),
-                    child: const Text(UflTexts.createAccount))),
+            // SizedBox(
+            //     width: double.infinity,
+            //     child: OutlinedButton(
+            //         onPressed: () => Get.to(() => const SignupScreen()),
+            //         child: const Text(UflTexts.createAccount))),
           ],
         ),
       ),

@@ -1,10 +1,47 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:united_app/src/constants/colors.dart';
 import 'package:united_app/src/features/authentication/screens/holiday_list/widget/holiday_lists.dart';
+import 'package:http/http.dart' as http;
 
-class HolidayList extends StatelessWidget {
+class HolidayList extends StatefulWidget {
   const HolidayList({super.key});
+
+  @override
+  State<HolidayList> createState() => _HolidayListState();
+}
+
+class _HolidayListState extends State<HolidayList> {
+  List<dynamic> holidayList = [];
+
+  void loadHolidays() async {
+    http.Response response = await http.get(
+      Uri.parse('http://192.168.1.7:3000/api/v1/holidays'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      // Update the birthdays variable with the data from the response
+      holidayList = data['msg'];
+      print("holidays: ${holidayList}");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadHolidays();
+  }
+
+  String getDate(String datetime){
+    DateTime parsed = DateTime.parse(datetime);
+        return "${parsed.day}-${parsed.month}-${parsed.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +59,8 @@ class HolidayList extends StatelessWidget {
           physics:
               const NeverScrollableScrollPhysics(), // Disable ListView scrolling
           shrinkWrap: true, // Allow ListView to take only the needed space
-          itemCount: UflHolidayList
-              .allHolidayEvents.length, // Updated to 10 birthdays to list
+          itemCount: holidayList.length, // Updated to 10 birthdays to list
           itemBuilder: (context, index) {
-            const names = UflHolidayList.allHolidayEvents; // List of names
-
-            const dates = UflHolidayList.allHolidayDates; // List of dates
-
-            const days = UflHolidayList.allHolidayDays; // List of days
-
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
@@ -61,7 +91,7 @@ class HolidayList extends StatelessWidget {
                       left: 62,
                       top: 23,
                       child: Text(
-                        dates[index], // Use dynamic date from the list
+                        getDate(holidayList[index]['heldAt']), // Use dynamic date from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -92,7 +122,7 @@ class HolidayList extends StatelessWidget {
                       left: 28,
                       top: 55,
                       child: Text(
-                        names[index], // Use dynamic name from the list
+                        holidayList[index]['holiday_name'], // Use dynamic name from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
@@ -121,7 +151,7 @@ class HolidayList extends StatelessWidget {
                       left: 263,
                       top: 23,
                       child: Text(
-                        days[index], // Use dynamic day from the list
+                        holidayList[index]['day'], // Use dynamic day from the list
                         style: const TextStyle(
                           color: Color(0xFF727374),
                           fontSize: 12,

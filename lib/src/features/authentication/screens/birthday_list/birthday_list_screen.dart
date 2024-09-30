@@ -1,15 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:united_app/src/constants/colors.dart';
-import 'package:united_app/src/features/authentication/screens/birthday_list/widget/employee_names.dart';
+import 'package:http/http.dart' as http;
 
-class BirthdayListScreen extends StatelessWidget {
+class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
+
+  @override
+  State<BirthdayListScreen> createState() => _BirthdayListScreenState();
+}
+
+class _BirthdayListScreenState extends State<BirthdayListScreen> {
+  List<dynamic> birthdaysList = [];
+
+  void loadBirthdays() async {
+    http.Response response = await http.get(
+      Uri.parse('http://192.168.1.7:3000/api/v1/birthdays'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      // Update the birthdays variable with the data from the response
+      birthdaysList = data['msg'];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadBirthdays();
+  }
 
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController =
-    ScrollController(); // Added ScrollController
+        ScrollController(); // Added ScrollController
 
     return Scaffold(
       appBar: AppBar(
@@ -19,19 +49,12 @@ class BirthdayListScreen extends StatelessWidget {
         // Wrap ListView in SingleChildScrollView
         controller: scrollController, // Assign the ScrollController
         child: ListView.builder(
-          physics:
-          const NeverScrollableScrollPhysics(), // Disable ListView scrolling
-          shrinkWrap: true, // Allow ListView to take only the needed space
-          itemCount: UflEmployeeBdayList.allEmployeeName.length, // Updated to 10 birthdays to list
+          physics: const NeverScrollableScrollPhysics(),
+          // Disable ListView scrolling
+          shrinkWrap: true,
+          // Allow ListView to take only the needed space
+          itemCount: birthdaysList.length,
           itemBuilder: (context, index) {
-            const names = UflEmployeeBdayList.allEmployeeName; // List of names
-
-            const dates = UflEmployeeBdayList.birthDate; // List of dates
-
-            const days = UflEmployeeBdayList.birthDays; // List of days
-
-            const images = UflEmployeeBdayList.employeePics; // List of images
-
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
@@ -62,7 +85,7 @@ class BirthdayListScreen extends StatelessWidget {
                       left: 62,
                       top: 23,
                       child: Text(
-                        dates[index], // Use dynamic date from the list
+                        birthdaysList[index]['birth_date'], // Use dynamic date from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -93,7 +116,7 @@ class BirthdayListScreen extends StatelessWidget {
                       left: 28,
                       top: 55,
                       child: Text(
-                        names[index], // Use dynamic name from the list
+                        birthdaysList[index]['employee_name'], // Use dynamic name from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
@@ -122,7 +145,7 @@ class BirthdayListScreen extends StatelessWidget {
                       left: 263,
                       top: 23,
                       child: Text(
-                        days[index], // Use dynamic day from the list
+                        birthdaysList[index]['location'], // Use dynamic day from the list
                         style: const TextStyle(
                           color: Color(0xFF727374),
                           fontSize: 12,
@@ -133,25 +156,25 @@ class BirthdayListScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
-                      left: 270,
-                      top: 48,
-                      child: Container(
-                        width: 33,
-                        height: 33,
-                        decoration: ShapeDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(images[
-                            index]), // Use dynamic image from the list
-                            fit: BoxFit.cover,
-                          ),
-                          shape: const OvalBorder(
-                            side:
-                            BorderSide(width: 1, color: Color(0xFFE9A03F)),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Positioned(
+                    //   left: 270,
+                    //   top: 48,
+                    //   child: Container(
+                    //     width: 33,
+                    //     height: 33,
+                    //     decoration: ShapeDecoration(
+                    //       image: DecorationImage(
+                    //         image: AssetImage(images[
+                    //             index]), // Use dynamic image from the list
+                    //         fit: BoxFit.cover,
+                    //       ),
+                    //       shape: const OvalBorder(
+                    //         side:
+                    //             BorderSide(width: 1, color: Color(0xFFE9A03F)),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
