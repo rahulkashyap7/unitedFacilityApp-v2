@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1039014123887",
+    "project_id": "united-facilities-db-8c27c",
+    "storage_bucket": "united-facilities-db-8c27c.appspot.com",
+    "project_number": "906970877584",
+    "project_id": "unified-field-db",
+    "storage_bucket": "unified-field-db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039014123887:android:d0055f4702fa4941b3309a",
+        "mobilesdk_app_id": "1:906970877584:android:be3f36114c3a971c6a9215",
+        "android_client_info": {
+          "package_name": "com.example.unified_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuTw8luoRUZTE4Ktq6k5mNp3OlGFT-VsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906970877584:android:1242069880592be56a9215",
+        "android_client_info": {
+          "package_name": "com.example.united_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQavIpW0ChGda3GDwDzHSygwU4P6nFOlg",
+          "current_key": "AIzaSyBuTw8luoRUZTE4Ktq6k5mNp3OlGFT-VsI"
+
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
