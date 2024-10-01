@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:united_app/globals.dart';
 import 'package:united_app/src/features/authentication/screens/dashboard/dashboard_screen.dart';
-import 'package:united_app/src/features/authentication/screens/signup/signup.dart';
 import 'package:united_app/src/local_db/credentialsRepository.dart';
 import '../../../../../constants/sizes.dart';
 import '../../../../../constants/text_strings.dart';
@@ -25,6 +24,8 @@ class _UflLoginFormState extends State<UflLoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   String locationController = "";
+
+  bool _isPasswordVisible = false; // Add this line
 
   @override
   void initState() {
@@ -105,8 +106,8 @@ class _UflLoginFormState extends State<UflLoginForm> {
     final data = jsonDecode(response.body);
     print("response: $data :: ${data['status']}");
     if (data['status'] == 200) {
-      Globals.employeeId = data['employeeId'];
-      // Globals.employeeName = ....
+      Globals.employeeId = data['data']['employeeId'];
+      Globals.employeeName = data['data']['name'];
       Get.to(() => const DashboardScreen());
     }
   }
@@ -131,12 +132,25 @@ class _UflLoginFormState extends State<UflLoginForm> {
             //   Password
             TextFormField(
               controller: passwordController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Iconsax.password_check),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Iconsax.password_check),
                 labelText: UflTexts.password,
-                suffixIcon: Icon(Iconsax.eye_slash),
+                suffixIcon: IconButton(
+                  // Change this line
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Iconsax.eye
+                        : Iconsax.eye_slash, // Toggle icon
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible =
+                          !_isPasswordVisible; // Toggle visibility
+                    });
+                  },
+                ),
               ),
-              obscureText: true, // Hide password input
+              obscureText: !_isPasswordVisible, // Use the state variable
             ),
             const SizedBox(height: UflSizes.spaceBtwInputFields / 2),
 
@@ -175,7 +189,10 @@ class _UflLoginFormState extends State<UflLoginForm> {
                 //   Remember Me
                 Row(
                   children: [
-                    Checkbox(value: true, onChanged: (value) {}),
+                    Checkbox(
+                        value: true,
+                        onChanged:
+                            (value) {}), // When user click checkbox change
                     const Text(UflTexts.rememberMe),
                   ],
                 ),

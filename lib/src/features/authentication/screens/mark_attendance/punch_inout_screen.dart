@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -5,8 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:united_app/globals.dart';
 import 'dart:async';
 import '../../../../constants/image_strings.dart';
+import 'package:http/http.dart' as http;
 
 class PunchInOutScreen extends StatefulWidget {
   const PunchInOutScreen({super.key});
@@ -39,7 +43,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
   final LatLng _geofenceCenter = const LatLng(28.6919, 77.1475);
   final double _geofenceRadius = 100; // 100 meters
   bool _geofenceAlertShown = false; // Flag to show geofence alert only once
-
 
   @override
   void initState() {
@@ -106,14 +109,12 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     const distance = Distance(); // Use the latlong2 Distance object
 
     // Calculate the distance between the user's location and the geofence center
-    double distanceToCenter = distance.as(
-        LengthUnit.Meter,
-        LatLng(lat, long),
-        _geofenceCenter
-    );
+    double distanceToCenter =
+        distance.as(LengthUnit.Meter, LatLng(lat, long), _geofenceCenter);
 
     // Compare the calculated distance to the geofence radius
-    if (!_geofenceAlertShown) { // Only show alert if it hasn't been shown yet
+    if (!_geofenceAlertShown) {
+      // Only show alert if it hasn't been shown yet
       if (distanceToCenter <= _geofenceRadius) {
         // User is within the geofence
         _showGeofenceAlert('You are in Geo Fencing');
@@ -121,7 +122,8 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         // User is outside the geofence
         _showGeofenceAlert('You are Outside of Geofencing');
       }
-      _geofenceAlertShown = true; // Set the flag to true after showing the alert
+      _geofenceAlertShown =
+          true; // Set the flag to true after showing the alert
     }
   }
 
@@ -145,7 +147,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
       },
     );
   }
-
 
   Future<void> _loadSavedState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -194,10 +195,25 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     }
   }
 
-  void _handlePunchIn() {
+  void _handlePunchIn() async {
     if (!isPunchedIn) {
+      punchInDateTime = DateTime.now();
+      print("The employee: ${Globals.employeeName} and ${Globals.employeeId}");
+      http.Response response = await http.post(
+        Uri.parse('http://192.168.1.7:3000/api/v1/checkin'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "employeeId": Globals.employeeId.toString(),
+          "time": punchInDateTime.toString(),
+          "latitude": lat.toString(),
+          "longitude": long.toString()
+        }),
+      );
+      print("getting punchin data: $response");
       setState(() {
-        punchInDateTime = DateTime.now();
+        // rendering
         punchInTime = DateFormat('HH:mm:ss').format(punchInDateTime!);
         punchInStatus = 'Punched In';
         isPunchedIn = true;
@@ -207,10 +223,24 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     }
   }
 
-  void _handlePunchOut() {
+  void _handlePunchOut() async{
     if (isPunchedIn && !isPunchedOut) {
+      punchOutDateTime = DateTime.now();
+      print("The employee: ${Globals.employeeName} and ${Globals.employeeId}");
+      http.Response response = await http.post(
+        Uri.parse('http://192.168.1.7:3000/api/v1/checkout'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "employeeId": Globals.employeeId.toString(),
+          "time": punchOutDateTime.toString(),
+          "latitude": lat.toString(),
+          "longitude": long.toString()
+        }),
+      );
+      print("getting punchout data: $response");
       setState(() {
-        punchOutDateTime = DateTime.now();
         punchOutTime = DateFormat('HH:mm:ss').format(punchOutDateTime!);
         punchOutStatus = 'Punched Out';
         isPunchedOut = true;
@@ -346,51 +376,70 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     return Row(
       children: [
         Expanded(
-            child: _buildPunchButton(
-                context, 'Punch In', const Color(0xFF60B158))),
-        const SizedBox(width: 12),
-        Expanded(
-            child: _buildPunchButton(
-                context, 'Punch Out', const Color(0xFFFF6961))),
-      ],
-    );
-  }
-
-  Widget _buildPunchButton(BuildContext context, String text, Color color) {
-    IconData iconData = text == 'Punch In' ? Iconsax.login : Iconsax.logout;
-    bool isDisabled = (text == 'Punch In' && isPunchedIn) ||
-        (text == 'Punch Out' && (!isPunchedIn || isPunchedOut));
-
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled ? Colors.grey : color,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      onPressed: isDisabled
-          ? null
-          : () {
-              if (text == 'Punch In') {
-                _handlePunchIn();
-              } else {
-                _handlePunchOut();
-              }
-            },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(iconData, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  isPunchedIn ? Colors.grey : const Color(0xFF60B158),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: isPunchedIn
+                ? null
+                : () {
+                    _handlePunchIn(); // Call the punch in method
+                  },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Iconsax.login, color: Colors.white),
+                SizedBox(width: 8),
+                Text(
+                  'Punch In',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: (isPunchedOut || !isPunchedIn)
+                  ? Colors.grey
+                  : const Color(0xFFFF6961),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: (isPunchedOut || !isPunchedIn)
+                ? null
+                : () {
+                    _handlePunchOut(); // Call the punch out method
+                  },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Iconsax.logout, color: Colors.white),
+                SizedBox(width: 8),
+                Text(
+                  'Punch Out',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -406,7 +455,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         child: FlutterMap(
           options: const MapOptions(
             initialCenter: LatLng(28.6919, 77.1475),
-            initialZoom: 15,
+            initialZoom: 16,
           ),
           children: [
             TileLayer(
@@ -425,7 +474,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
               CircleMarker(
                   point: const LatLng(28.6919, 77.1475),
                   color: Colors.blue.withOpacity(0.5),
-                  radius: 100,
+                  radius: 50,
                   useRadiusInMeter: true)
             ]),
           ],

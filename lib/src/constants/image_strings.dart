@@ -2,6 +2,7 @@ class UflImages {
 //   App Logo
   static const String darkAppLogo = "assets/images/logos/ufl-native.png";
   static const String lightAppLogo = "assets/images/logos/ufl-native.png";
+  static const String termAndCondtionImg = "assets/images/logos/T&C_img.png";
 
 // Social Logos
   static const String google = "assets/images/logos/google.png";

@@ -10,6 +10,7 @@ import 'package:united_app/src/features/authentication/screens/user_settings/pro
 import '../../../../common_widgets/list_tiles/user_profile_tile.dart';
 import '../../../../constants/sizes.dart';
 import '../login/login.dart';
+import '../termAndConditions/termAndConditions.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -56,7 +57,7 @@ class SettingsScreen extends StatelessWidget {
                       icon: Iconsax.document,
                       title: 'Term & Conditions',
                       subTitle: 'Read company T&Cs',
-                      onTap: () {}),
+                      onTap: () => Get.to(() => const TermAndconditions())),
                   UflSettingsMenuTile(
                     icon: Iconsax.notification,
                     title: 'Notifications',

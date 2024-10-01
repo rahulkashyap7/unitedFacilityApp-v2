@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:united_app/globals.dart';
-import 'package:united_app/src/features/authentication/screens/on_boarding/onboarding_screen.dart';
+import 'package:united_app/src/features/authentication/screens/login/login.dart';
 import 'package:united_app/src/utils/theme.dart';
 
 class UflApp extends StatelessWidget {
@@ -17,7 +17,7 @@ class UflApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: UflAppTheme.lightTheme,
       darkTheme: UflAppTheme.darkTheme,
-      home: const OnBoardingScreen(),
+      home: const LoginScreen(),
     );
   }
 }

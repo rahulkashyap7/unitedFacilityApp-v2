@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:united_app/src/constants/colors.dart';
-import 'package:united_app/src/features/authentication/screens/holiday_list/widget/holiday_lists.dart';
 import 'package:http/http.dart' as http;
 
 class HolidayList extends StatefulWidget {
@@ -28,7 +27,6 @@ class _HolidayListState extends State<HolidayList> {
     setState(() {
       // Update the birthdays variable with the data from the response
       holidayList = data['msg'];
-      print("holidays: ${holidayList}");
     });
   }
 
@@ -38,9 +36,9 @@ class _HolidayListState extends State<HolidayList> {
     loadHolidays();
   }
 
-  String getDate(String datetime){
+  String getDate(String datetime) {
     DateTime parsed = DateTime.parse(datetime);
-        return "${parsed.day}-${parsed.month}-${parsed.year}";
+    return "${parsed.day}-${parsed.month}-${parsed.year}";
   }
 
   @override
@@ -59,7 +57,7 @@ class _HolidayListState extends State<HolidayList> {
           physics:
               const NeverScrollableScrollPhysics(), // Disable ListView scrolling
           shrinkWrap: true, // Allow ListView to take only the needed space
-          itemCount: holidayList.length, // Updated to 10 birthdays to list
+          itemCount: holidayList.length,
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.all(8.0),
@@ -91,7 +89,8 @@ class _HolidayListState extends State<HolidayList> {
                       left: 62,
                       top: 23,
                       child: Text(
-                        getDate(holidayList[index]['heldAt']), // Use dynamic date from the list
+                        getDate(holidayList[index]['heldAt']),
+                        // Use dynamic date from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -122,7 +121,8 @@ class _HolidayListState extends State<HolidayList> {
                       left: 28,
                       top: 55,
                       child: Text(
-                        holidayList[index]['holiday_name'], // Use dynamic name from the list
+                        holidayList[index]['holiday_name'],
+                        // Use dynamic name from the list
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
@@ -151,7 +151,8 @@ class _HolidayListState extends State<HolidayList> {
                       left: 263,
                       top: 23,
                       child: Text(
-                        holidayList[index]['day'], // Use dynamic day from the list
+                        holidayList[index]['day'],
+                        // Use dynamic day from the list
                         style: const TextStyle(
                           color: Color(0xFF727374),
                           fontSize: 12,
