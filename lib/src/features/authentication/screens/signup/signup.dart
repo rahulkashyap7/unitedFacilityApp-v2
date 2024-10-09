@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:united_app/src/constants/sizes.dart';
 import 'package:united_app/src/constants/text_strings.dart';
 import 'package:united_app/src/features/authentication/screens/login/widget/login_divider.dart';
-import 'package:united_app/src/features/authentication/screens/login/widget/login_social_icon.dart';
 import 'package:united_app/src/features/authentication/screens/signup/widget/signup_form_widget.dart';
 import '../../../../constants/image_strings.dart';
 
@@ -39,9 +38,6 @@ class SignupScreen extends StatelessWidget {
               ///Divider
               UflDivider(dividerText: UflTexts.orSignUpWith.capitalize!),
               const SizedBox(height: UflSizes.spaceBtwSections),
-
-              /// Social Icon
-              const UflSocialButton(),
             ],
           ),
         ),

@@ -92,4 +92,12 @@ class  UflHelperFunction {
   //     wrapperList.add(Row(children: rowChildren));
   //   }
   // }
+
+static String getLocationFromId(int id) {
+    if (id==1) return 'Gurugram';
+    if (id==2) return 'Delhi NSP';
+    return 'Noida';
 }
+}
+
+

@@ -6,6 +6,8 @@ import 'package:united_app/src/common_widgets/custom_shapes/container/primary_he
 import 'package:united_app/src/common_widgets/list_tiles/settings_menu_tile.dart';
 import 'package:united_app/src/common_widgets/texts/section_heading.dart';
 import 'package:united_app/src/constants/colors.dart';
+import 'package:united_app/src/features/authentication/screens/notifications/no_notifications.dart';
+import 'package:united_app/src/features/authentication/screens/privacy_policy/privacy_policy.dart';
 import 'package:united_app/src/features/authentication/screens/user_settings/profile_screen/profile_screen.dart';
 import '../../../../common_widgets/list_tiles/user_profile_tile.dart';
 import '../../../../constants/sizes.dart';
@@ -62,13 +64,13 @@ class SettingsScreen extends StatelessWidget {
                     icon: Iconsax.notification,
                     title: 'Notifications',
                     subTitle: 'View any kind of notification message',
-                    onTap: () {},
+                    onTap: () => Get.to(() => const NoNotifications()),
                   ),
                   UflSettingsMenuTile(
                     icon: Iconsax.shield_tick,
                     title: 'Privacy Policy',
                     subTitle: 'Manage data usage and connected account',
-                    onTap: () {},
+                    onTap: () => Get.to(() => const PrivacyPolicy()),
                   ),
 
                   //--- App Settings

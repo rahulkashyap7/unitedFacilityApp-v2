@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:united_app/globals.dart';
 import 'package:united_app/src/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:united_app/src/local_db/credentialsRepository.dart';
+import 'package:united_app/src/utils/helpers/helper_functions.dart';
 import '../../../../../constants/sizes.dart';
 import '../../../../../constants/text_strings.dart';
 import 'package:http/http.dart' as http;
@@ -43,34 +45,10 @@ class _UflLoginFormState extends State<UflLoginForm> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
-
-  ///--- Login Server
-  // void handleLogin() async {
-  //   http.Response response = await http.post(
-  //     Uri.parse('http://192.168.1.153:3000/api/v1/login'),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, String>{
-  //       "email": emailController.text,
-  //       "password": passwordController.text,
-  //       // "locationId": locationController.text
-  //       "locationId": locationController
-  //     }),
-  //   );
-  //   final data = jsonDecode(response.body);
-  //   print("response: $data :: ${data['status']}");
-  //   if (data['status'] == 200) {
-  //     Globals.employeeId = data['employeeId'];
-  //     // Globals.employeeName = ....
-  //     Get.to(() => const NavigationMenu());
-  //   }
-  // }
 
   void validateLogin() async {
     String email = emailController.text.trim();
@@ -91,23 +69,43 @@ class _UflLoginFormState extends State<UflLoginForm> {
       return;
     }
 
+    print("comming to login.. ${Globals.baseUrl}");
+
     http.Response response = await http.post(
-      Uri.parse('http://192.168.1.7:3000/api/v1/login'),
+      Uri.parse('${Globals.baseUrl}/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
         "email": emailController.text,
         "password": passwordController.text,
-        // "locationId": locationController.text
         "locationId": locationController
       }),
     );
+    print("after process...");
     final data = jsonDecode(response.body);
-    print("response: $data :: ${data['status']}");
+    print("response: $data :: ${data['data']}");
     if (data['status'] == 200) {
+      var employeeId = data['data']['employeeId'];
+      var employeeName = data['data']['fullname'];
+      var employeeEmail = data['data']['email'];
+      var empLocation =
+          UflHelperFunction.getLocationFromId(data['data']['locationId']);
+
       Globals.employeeId = data['data']['employeeId'];
-      Globals.employeeName = data['data']['name'];
+      Globals.employeeName = data['data']['fullname'];
+      Globals.employeeEmail = data['data']['email'];
+      Globals.empLocation =
+          UflHelperFunction.getLocationFromId(data['data']['locationId']);
+
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("isLogined", true);
+      await prefs.setString("employeeId", employeeId);
+      await prefs.setString("employeeName", employeeName);
+      await prefs.setString("employeeEmail", employeeEmail);
+      await prefs.setString("employeeLoc", empLocation);
+
       Get.to(() => const DashboardScreen());
     }
   }
@@ -173,11 +171,6 @@ class _UflLoginFormState extends State<UflLoginForm> {
               },
               validator: (value) {
                 return null;
-
-                // if (value == null || value.isEmpty) {
-                //   return 'Please select a location';
-                // }
-                // return null;
               },
             ),
             const SizedBox(height: UflSizes.spaceBtwInputFields),
@@ -207,13 +200,6 @@ class _UflLoginFormState extends State<UflLoginForm> {
                     onPressed: validateLogin, // Call validateLogin on press
                     child: const Text(UflTexts.logIn))),
             const SizedBox(height: UflSizes.spaceBtwItems),
-
-            /// Create Account Button
-            // SizedBox(
-            //     width: double.infinity,
-            //     child: OutlinedButton(
-            //         onPressed: () => Get.to(() => const SignupScreen()),
-            //         child: const Text(UflTexts.createAccount))),
           ],
         ),
       ),

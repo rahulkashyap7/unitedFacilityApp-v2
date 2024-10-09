@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:united_app/src/constants/sizes.dart';
 
 class UflProfileMenu extends StatelessWidget {
   const UflProfileMenu({
     super.key,
-    this.icon = Iconsax.arrow_right_34,
+
     required this.onPressed,
     required this.title,
     required this.value,
   });
 
-  final IconData icon;
+
   final VoidCallback onPressed;
   final String title, value;
 
@@ -33,7 +32,7 @@ class UflProfileMenu extends StatelessWidget {
                 child: Text(value,
                     style: Theme.of(context).textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis)),
-            Expanded(child: Icon(icon, size: 18)),
+            // Expanded(child: Icon(icon, size: 18)),
           ],
         ),
       ),

@@ -56,4 +56,7 @@ class UflTexts {
       "Didn't get the email? Check your spam or resent it.";
   static const String yourAccountCreatedTitle =
       "Your account successfully created!";
+
+
+
 }

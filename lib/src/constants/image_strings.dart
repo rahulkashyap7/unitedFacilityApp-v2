@@ -4,9 +4,6 @@ class UflImages {
   static const String lightAppLogo = "assets/images/logos/ufl-native.png";
   static const String termAndCondtionImg = "assets/images/logos/T&C_img.png";
 
-// Social Logos
-  static const String google = "assets/images/logos/google.png";
-  static const String email = "assets/images/logos/email.png";
 
 //   OnBoarding Images
   static const String OnBoardingImage1 = "assets/images/on_boarding_images/1.png";
@@ -21,8 +18,6 @@ class UflImages {
   static const String verifyMail = "assets/images/on_boarding_images/verifyMail.png";
   static const String verifiedMail = "assets/images/on_boarding_images/verified.png";
 
-  // Categories
-  static const String attendanceIcon = "assets/images/categories/attendance.png";
 
   // Banners
 
@@ -68,5 +63,14 @@ class UflImages {
   static const String jaskaran = "assets/images/bday_pics/jaskaran.png";
   static const String userPic = "assets/images/bday_pics/userPic.png";
 
+
+  // Leave management
+  static const String leaveManagement = "assets/images/leave_manage/manage.png";
+
+
+  // Clear Notification
+  static const String noNotification = "assets/images/gif/notification_bell.gif";
+  static const String leaveManage = "assets/images/gif/manage.gif";
+  static const String update = "assets/images/gif/update.png";
 
 }

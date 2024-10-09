@@ -6,8 +6,10 @@ import '../../../../common_widgets/style/spacing_styles.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+
     final dark = UflHelperFunction.isDarkMode(context);
     return Scaffold(
       body: SingleChildScrollView(
@@ -16,7 +18,7 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //   Logo Title & Subtitle
+              // Logo Title & Subtitle
               UflLoginHeader(dark: dark),
 
               /// Form
@@ -28,7 +30,3 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-

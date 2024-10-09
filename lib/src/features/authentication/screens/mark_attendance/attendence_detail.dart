@@ -1,10 +1,44 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:united_app/globals.dart';
 import '../../../../constants/colors.dart';
 import 'package:intl/intl.dart'; // Import intl package for date formatting
+import 'package:http/http.dart' as http;
 
-class AttenadnceDetail extends StatelessWidget {
-  const AttenadnceDetail({super.key});
+class AttendenceDetail extends StatefulWidget {
+  const AttendenceDetail({super.key});
+
+  @override
+  State<AttendenceDetail> createState() => _AttendenceDetailState();
+}
+
+class _AttendenceDetailState extends State<AttendenceDetail> {
+  List<dynamic> attendenceList = [];
+
+  void loadAttendence() async {
+    http.Response response = await http.get(
+      Uri.parse(
+          '${Globals.baseUrl}/attendence?id=${Globals.employeeId}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      // Update the birthdays variable with the data from the response
+      print("the data attendence: $data");
+      attendenceList = data['data'];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAttendence();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +61,11 @@ class AttenadnceDetail extends StatelessWidget {
           physics:
               const NeverScrollableScrollPhysics(), // Disable ListView scrolling
           shrinkWrap: true, // Allow ListView to take only the needed space
-          itemCount: 1, // Set to 1 for current date
+          itemCount: attendenceList.length, // Set to 1 for current date
           itemBuilder: (context, index) {
             // Use the current date
-            String punchInTime = "10:00"; // Replace with actual data
-            String punchOutTime = "18:00"; // Replace with actual data
+            String punchInTime = (attendenceList[index]['checkInTime']); // Replace with actual data
+            String punchOutTime = (attendenceList[index]['checkOutTime']); // Replace with actual data
 
             return Padding(
               padding: const EdgeInsets.all(8.0),

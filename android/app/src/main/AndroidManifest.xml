@@ -5,7 +5,7 @@
 
 
     <application
-        android:label="united_app"
+        android:label="United HR"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
 

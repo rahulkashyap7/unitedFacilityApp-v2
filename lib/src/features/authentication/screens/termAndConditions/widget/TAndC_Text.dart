@@ -25,4 +25,8 @@ class UflTexts {
   static const String tAndCFooter =
       "By using the [United HR App], you acknowledge that you have read, understood, and agreed to these terms and conditions.\n\n";
 
+  static String abc = "[App Name] operates an HRMS (Human Resource Management System) application that allows employees to track attendance, apply for leave, view colleagues' information (e.g., birthdays), and access other HR-related features. This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you use our application.";
+
+  static String privacyPolicySubTitle = "";
+
 }

@@ -1,9 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
-
-import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:united_app/src/local_db/getDatabase.dart';
 
@@ -51,7 +46,7 @@ class CredentialsRepository {
 
     final userMap = await db.query('user');
     print("before found: $userMap");
-    var user =  [
+    var user = [
       for (final {
             'email': email as String,
             'password': password as String,
@@ -60,8 +55,8 @@ class CredentialsRepository {
         User(id: 1, email: email, password: password, locationId: locationId),
     ];
 
-      print("user found: $user" );
-      return user;
+    print("user found: $user");
+    return user;
 
     // return
     //      User(id: 1, email: email, password: password, locationId: locationId)

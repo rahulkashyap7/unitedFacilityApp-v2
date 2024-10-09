@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -37,12 +36,13 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
   DateTime? punchOutDateTime;
 
   double lat = 0.0;
-  double long = 0.0; // San Francisco coordinates
+  double long = 0.0;
   bool isLocResolved = false; // Track location resolution status
   // Geofencing center coordinates and radius
   final LatLng _geofenceCenter = const LatLng(28.6919, 77.1475);
   final double _geofenceRadius = 100; // 100 meters
-  bool _geofenceAlertShown = false; // Flag to show geofence alert only once
+  bool _isWithinGeofence = false; // Track if the user is within the geofence
+  bool _geofenceAlertShown = false;
 
   @override
   void initState() {
@@ -113,21 +113,24 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         distance.as(LengthUnit.Meter, LatLng(lat, long), _geofenceCenter);
 
     // Compare the calculated distance to the geofence radius
-    if (!_geofenceAlertShown) {
-      // Only show alert if it hasn't been shown yet
-      if (distanceToCenter <= _geofenceRadius) {
-        // User is within the geofence
+    if (distanceToCenter <= _geofenceRadius) {
+      _isWithinGeofence = true; // User is within the geofence
+      if (!_geofenceAlertShown) {
+        // Check if alert has not been shown
         _showGeofenceAlert('You are in Geo Fencing');
-      } else {
-        // User is outside the geofence
-        _showGeofenceAlert('You are Outside of Geofencing');
+        _geofenceAlertShown =
+            true; // Set the flag to true after showing the alert
       }
-      _geofenceAlertShown =
-          true; // Set the flag to true after showing the alert
+    } else {
+      _isWithinGeofence = false; // User is outside the geofence
+      if (_geofenceAlertShown) {
+        // Check if alert was shown before
+        _showGeofenceAlert('You are Outside of Geofencing');
+        _geofenceAlertShown = false; // Reset the flag when user is outside
+      }
     }
   }
 
-  // Function to show a popup alert when geofencing status changes
   void _showGeofenceAlert(String message) {
     showDialog(
       context: context,
@@ -185,14 +188,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     }
     await prefs.setBool('isPunchedIn', isPunchedIn);
     await prefs.setBool('isPunchedOut', isPunchedOut);
-
-    if (isPunchedOut) {
-      // Clear the saved state when both punch-in and punch-out are completed
-      await prefs.remove('punchInTime');
-      await prefs.remove('punchOutTime');
-      await prefs.remove('isPunchedIn');
-      await prefs.remove('isPunchedOut');
-    }
   }
 
   void _handlePunchIn() async {
@@ -200,7 +195,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
       punchInDateTime = DateTime.now();
       print("The employee: ${Globals.employeeName} and ${Globals.employeeId}");
       http.Response response = await http.post(
-        Uri.parse('http://192.168.1.7:3000/api/v1/checkin'),
+        Uri.parse('${Globals.baseUrl}/checkin'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -217,18 +212,18 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         punchInTime = DateFormat('HH:mm:ss').format(punchInDateTime!);
         punchInStatus = 'Punched In';
         isPunchedIn = true;
-        isPunchedOut = false;
+        isPunchedOut = false; // Reset punch out status
       });
       _saveState();
     }
   }
 
-  void _handlePunchOut() async{
+  void _handlePunchOut() async {
     if (isPunchedIn && !isPunchedOut) {
       punchOutDateTime = DateTime.now();
       print("The employee: ${Globals.employeeName} and ${Globals.employeeId}");
       http.Response response = await http.post(
-        Uri.parse('http://192.168.1.7:3000/api/v1/checkout'),
+        Uri.parse('${Globals.baseUrl}/checkout'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -247,7 +242,34 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         _calculateWorkingHours();
       });
       _saveState();
+
+      // Check if punch-in and punch-out are on different days
+      if (punchOutDateTime!.day != punchInDateTime!.day) {
+        // Clear the saved state
+        await _clearSavedState();
+        // Reset button states
+        _resetPunchStates();
+      }
     }
+  }
+
+  Future<void> _clearSavedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('punchInTime');
+    await prefs.remove('punchOutTime');
+    await prefs.remove('isPunchedIn');
+    await prefs.remove('isPunchedOut');
+  }
+
+  void _resetPunchStates() {
+    setState(() {
+      isPunchedIn = false; // Reset punch in status
+      isPunchedOut = false; // Reset punch out status
+      punchInTime = '--:--:--'; // Reset punch in time display
+      punchOutTime = '--:--:--'; // Reset punch out time display
+      punchInStatus = 'Not Punched In'; // Reset punch in status display
+      punchOutStatus = 'Not Punched Out'; // Reset punch out status display
+    });
   }
 
   void _calculateWorkingHours() {
@@ -378,13 +400,14 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isPunchedIn ? Colors.grey : const Color(0xFF60B158),
+              backgroundColor: isPunchedIn || !_isWithinGeofence
+                  ? Colors.grey
+                  : const Color(0xFF60B158),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            onPressed: isPunchedIn
+            onPressed: isPunchedIn || !_isWithinGeofence
                 ? null
                 : () {
                     _handlePunchIn(); // Call the punch in method
@@ -410,14 +433,15 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: (isPunchedOut || !isPunchedIn)
-                  ? Colors.grey
-                  : const Color(0xFFFF6961),
+              backgroundColor:
+                  (isPunchedOut || !isPunchedIn || !_isWithinGeofence)
+                      ? Colors.grey
+                      : const Color(0xFFFF6961),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            onPressed: (isPunchedOut || !isPunchedIn)
+            onPressed: (isPunchedOut || !isPunchedIn || !_isWithinGeofence)
                 ? null
                 : () {
                     _handlePunchOut(); // Call the punch out method

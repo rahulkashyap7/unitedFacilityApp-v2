@@ -1,51 +1,45 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-
+import '../../../../../globals.dart';
 import '../../../../constants/colors.dart';
+import 'package:http/http.dart' as http;
 
-class AssetManagementScreen extends StatelessWidget {
+class AssetManagementScreen extends StatefulWidget {
   const AssetManagementScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Sample list of assets
-    final List<Map<String, String>> assets = [
-      {
-        'id': 'LG00001',
-        'name': 'HP Laptop 330 (i5, Intel)',
-        'brand': 'HP',
-        'user': 'Rahul Kashyap',
-        'condition': 'Working',
-      },
-      {
-        'id': 'LG00002',
-        'name': 'Dell Inspiron 15 (i7, Intel)',
-        'brand': 'Dell',
-        'user': 'Anita Sharma',
-        'condition': 'Working',
-      },
-      {
-        'id': 'LG00003',
-        'name': 'Lenovo ThinkPad X1',
-        'brand': 'Lenovo',
-        'user': 'John Doe',
-        'condition': 'Needs Repair',
-      },
-      {
-        'id': 'LG00004',
-        'name': 'Asus ZenBook 14',
-        'brand': 'Asus',
-        'user': 'Emily Clark',
-        'condition': 'Working',
-      },
-      {
-        'id': 'LG00005',
-        'name': 'Acer Aspire 5',
-        'brand': 'Acer',
-        'user': 'Michael Brown',
-        'condition': 'Working',
-      },
-    ];
+  State<AssetManagementScreen> createState() => _AssetManagementScreenState();
+}
 
+class _AssetManagementScreenState extends State<AssetManagementScreen> {
+  List<dynamic> assetsList = [];
+
+  void loadAssets() async {
+    http.Response response = await http.get(
+      Uri.parse(
+          '${Globals.baseUrl}/assets?id=${Globals.employeeId}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      // Update the birthdays variable with the data from the response
+      print("Asset data: $data");
+      assetsList = data['data'];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAssets();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Asset Management'),
@@ -58,7 +52,7 @@ class AssetManagementScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  'Total Assets: ${assets.length}',
+                  'Total Assets: ${assetsList.length}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -71,9 +65,8 @@ class AssetManagementScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16.0), // Added bottom padding
               child: ListView.builder(
-                itemCount: assets.length,
+                itemCount: assetsList.length,
                 itemBuilder: (context, index) {
-                  final asset = assets[index];
                   return Column(
                     children: [
                       Container(
@@ -102,24 +95,10 @@ class AssetManagementScreen extends StatelessWidget {
                               ),
                             ),
                             Positioned(
-                              left: 14.29,
-                              top: 83.93,
-                              child: Text(
-                                'Id: ${asset['id']}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.74,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                  height: 0,
-                                ),
-                              ),
-                            ),
-                            Positioned(
                               left: 107.56,
                               top: 13.24,
                               child: Text(
-                                asset['name']!,
+                                Globals.employeeName,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 13.24,
@@ -133,7 +112,7 @@ class AssetManagementScreen extends StatelessWidget {
                               left: 107.56,
                               top: 37.50,
                               child: Text(
-                                'Brand: ${asset['brand']}',
+                                assetsList[index]['make'],
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 13.24,
@@ -147,7 +126,7 @@ class AssetManagementScreen extends StatelessWidget {
                               left: 107.56,
                               top: 60.71,
                               child: Text(
-                                'User: ${asset['user']}',
+                                assetsList[index]['system'],
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 13.24,
@@ -174,9 +153,9 @@ class AssetManagementScreen extends StatelessWidget {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: asset['condition']!,
+                                      text: assetsList[index]['status'],
                                       style: const TextStyle(
-                                        color: Color(0xFF33C023),
+                                        color: Colors.black,
                                         fontSize: 13.24,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w700,

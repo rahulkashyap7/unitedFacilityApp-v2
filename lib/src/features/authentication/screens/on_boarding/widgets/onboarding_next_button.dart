@@ -20,7 +20,9 @@ class OnBoardingNextButton extends StatelessWidget {
       bottom: UflDeviceUtils.getBottomNavigationBarHeight(),
       child: ElevatedButton(
         onPressed: () => OnBoardingController.instance.nextPage(),
-        style: ElevatedButton.styleFrom(shape: const CircleBorder(), backgroundColor: dark ? UflColors.primary: Colors.black),
+        style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: dark ? UflColors.primary : Colors.black),
         child: const Icon(Iconsax.arrow_right_3),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'package:united_app/src/constants/image_strings.dart';
 import 'package:united_app/src/constants/text_strings.dart';
 import 'package:united_app/src/features/authentication/controllers/onboarding_controller.dart';
@@ -14,7 +15,6 @@ class OnBoardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(OnBoardingController());
-
 
     return Scaffold(
       body: Stack(
@@ -54,9 +54,5 @@ class OnBoardingScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-
-
-
+  }
 

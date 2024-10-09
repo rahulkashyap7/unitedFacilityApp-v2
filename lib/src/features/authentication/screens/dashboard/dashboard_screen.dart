@@ -5,8 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:united_app/src/features/authentication/screens/birthday_list/birthday_list_screen.dart';
 import 'package:united_app/src/features/authentication/screens/document/document_screen.dart';
 import 'package:united_app/src/features/authentication/screens/holiday_list/holiday_list.dart';
+import 'package:united_app/src/features/authentication/screens/leave_management/leave_manegment.dart';
 import '../asset_management/asset_management_screen.dart';
-import '../mark_attendance/attenadnce_detail.dart';
+import '../mark_attendance/attendence_detail.dart';
 import '../mark_attendance/punch_inout_screen.dart';
 import '../user_settings/settings.dart';
 
@@ -180,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AttenadnceDetail()),
+                            builder: (context) => const AttendenceDetail()),
                       );
                     },
                   ),
@@ -191,7 +192,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       UflImages.leave,
                       const Color(0xFFFBFDF6),
                       const Color(0xFF608600),
-                      const Color(0xFFE9F8BF)),
+                      const Color(0xFFE9F8BF),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LeaveManagement()),
+                      );
+                    },
+                  ),
                   // Shadow color for Leave Management
                   _buildDashboardItem(
                     context, // Pass the context as the first argument
@@ -269,7 +278,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     UflImages.assistance,
                     const Color(0xFFFDF5F3),
                     const Color(0xFFE176BF),
-                    const Color(0xFFFCE2F3)),
+                    const Color(0xFFFCE2F3),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LeaveManagement()),
+                      );
+                    },
+                  ),
                   // Shadow color for Assistance
                   _buildDashboardItem(
                       context, // Pass the context as the first argument
@@ -277,7 +294,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       UflImages.exit,
                       const Color(0xFFFEFBF7),
                       const Color(0xFF7114E5),
-                      const Color(0xFFE7D7FC)),
+                      const Color(0xFFE7D7FC),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LeaveManagement()),
+                      );
+                    },
+                  ),
                   // Shadow color for Exit Management
                 ],
               ),

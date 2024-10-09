@@ -22,7 +22,6 @@ dependencies:
   url_launcher: ^6.3.0
   flutter_native_splash: ^2.4.1
   smooth_page_indicator: ^1.2.0+3
-  flutter_gif: ^0.0.4
   carousel_slider: ^5.0.0
   cached_network_image: ^3.4.1
   geolocator: ^13.0.1
@@ -44,6 +43,8 @@ dependencies:
   path: ^1.9.0
   shared_preferences: ^2.3.2
   flutter_launcher_icons: ^0.14.1
+  flutter_gif: ^0.0.4
+
 
 dev_dependencies:
   flutter_test:
@@ -73,10 +74,10 @@ flutter:
   assets:
     - assets/images/logos/
     - assets/images/on_boarding_images/
-    - assets/images/categories/
     - assets/images/thumbnail_images/
     - assets/images/profileImages/
     - assets/images/bday_pics/
+    - assets/images/gif/
 
 
   # fonts:
