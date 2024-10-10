@@ -3,7 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:united_app/src/constants/image_strings.dart';
 import 'package:intl/intl.dart';
 import 'package:united_app/src/features/authentication/screens/birthday_list/birthday_list_screen.dart';
-import 'package:united_app/src/features/authentication/screens/document/document_screen.dart';
+import 'package:united_app/src/features/authentication/screens/exit_management/exit_management.dart';
 import 'package:united_app/src/features/authentication/screens/holiday_list/holiday_list.dart';
 import 'package:united_app/src/features/authentication/screens/leave_management/leave_manegment.dart';
 import '../asset_management/asset_management_screen.dart';
@@ -201,23 +201,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     },
                   ),
-                  // Shadow color for Leave Management
-                  _buildDashboardItem(
-                    context, // Pass the context as the first argument
-                    'Documents',
-                    UflImages.documents,
-                    const Color(0xFFFEFBF7),
-                    const Color(0xFFEAA040),
-                    const Color(0xFFFBEDDB),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DocumentScreen()),
-                      );
-                    },
-                  ),
-                  // Shadow color for Documents
                   _buildDashboardItem(
                     context, // Pass the context as the first argument
                     'Asset Management',
@@ -299,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LeaveManagement()),
+                            builder: (context) => const ExitManagement()),
                       );
                     },
                   ),

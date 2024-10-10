@@ -20,15 +20,11 @@ class _UflAppState extends State<UflApp> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var loginState = prefs.getBool("isLogined");
 
-    print("init-1 $loginState");
-
     if (loginState==true) {
       Globals.employeeId = prefs.getString("employeeId")! ;
       Globals.employeeName = prefs.getString("employeeName")!;
       Globals.employeeEmail = prefs.getString("employeeEmail")!;
       Globals.empLocation = prefs.getString("employeeLoc")!;
-
-      print("init: ${Globals.employeeName}");
     }
 
     setState(() {
@@ -40,7 +36,6 @@ class _UflAppState extends State<UflApp> {
 
   @override
   void initState() {
-    print("inside int state in init");
     setLoginState();
     super.initState();
   }

@@ -1,3 +1,5 @@
+import 'dart:collection';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:united_app/globals.dart';
@@ -7,9 +9,54 @@ import 'package:united_app/src/constants/sizes.dart';
 import 'package:united_app/src/features/authentication/screens/user_settings/profile_screen/widget/profile_menu.dart';
 import 'package:iconsax/iconsax.dart';
 import '../settings.dart';
+import 'package:http/http.dart' as http;
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final Map<String, String> userInfo = HashMap();
+
+  void fetchUserData() async {
+    String url = "${Globals.baseUrl}/profile?id=${Globals.employeeId}";
+    print("url: $url");
+    http.Response response = await http.get(
+        Uri.parse('${Globals.baseUrl}/profile?id=${Globals.employeeId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        });
+    final data = jsonDecode(response.body);
+    print("response in profile: $data :: ${data['data']}");
+    if (data['status'] == 200) {
+      setState(() {
+        userInfo['name'] = data['data']['fullname'];
+        userInfo['email'] = data['data']['email'];
+        userInfo['dob'] = data['data']['dob'];
+        userInfo['department'] = data['data']['department'];
+        userInfo['position'] = data['data']['designation'];
+        userInfo['gender'] = data['data']['gender'];
+        userInfo['location'] = 'NSP'; // TODO from DB
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    userInfo['name'] = "";
+    userInfo['email'] = "";
+    userInfo['dob'] = "";
+    userInfo['department'] = "";
+    userInfo['position'] = "";
+    userInfo['gender'] = "";
+    userInfo['location'] = ''; // TODO from DB
+
+    fetchUserData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: UflSizes.spaceBtwItems),
 
             UflProfileMenu(
-                onPressed: () {}, title: 'Name', value: Globals.employeeName),
+                onPressed: () {}, title: 'Name', value: userInfo['name']!),
             UflProfileMenu(
               onPressed: () {},
               title: 'Employee ID',
@@ -69,18 +116,19 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: UflSizes.spaceBtwItems),
 
             UflProfileMenu(
+                onPressed: () {}, title: 'E-mail', value: userInfo['email']!),
+            UflProfileMenu(
+                onPressed: () {}, title: 'Date Of Birth', value: userInfo['dob']!),
+            UflProfileMenu(
                 onPressed: () {},
-                title: 'E-mail',
-                value: Globals.employeeEmail),
-            UflProfileMenu(
-                onPressed: () {}, title: 'Date Of Birth', value: '1 Jan, 2000'),
-            UflProfileMenu(
-                onPressed: () {}, title: 'Department', value: 'Operations'),
+                title: 'Department',
+                value: userInfo['department']!),
             UflProfileMenu(
                 onPressed: () {},
                 title: 'Position',
-                value: 'Operation Executive'),
-            UflProfileMenu(onPressed: () {}, title: 'Gender', value: 'Male'),
+                value: userInfo['position']!),
+            UflProfileMenu(
+                onPressed: () {}, title: 'Gender', value: userInfo['gender']!),
             UflProfileMenu(
                 onPressed: () {},
                 title: 'Location',

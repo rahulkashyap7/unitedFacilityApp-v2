@@ -43,12 +43,7 @@ class _AttendenceDetailState extends State<AttendenceDetail> {
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController =
-        ScrollController(); // Added ScrollController
-
-    // Get the current date
-    DateTime now = DateTime.now();
-    String currentDate = DateFormat('yMMMMd').format(now); // Format the date
-    String currentDay = DateFormat('EEEE').format(now); // Get the current day
+        ScrollController();
 
     return Scaffold(
       appBar: AppBar(
@@ -64,8 +59,11 @@ class _AttendenceDetailState extends State<AttendenceDetail> {
           itemCount: attendenceList.length, // Set to 1 for current date
           itemBuilder: (context, index) {
             // Use the current date
-            String punchInTime = (attendenceList[index]['checkInTime']); // Replace with actual data
-            String punchOutTime = (attendenceList[index]['checkOutTime']); // Replace with actual data
+            String punchInTime = (attendenceList[index]['checkInTime']);
+            String punchOutTime = (attendenceList[index]['checkOutTime']);
+            String date = (attendenceList[index]['date']);
+            String day = (attendenceList[index]['day']);
+
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
@@ -97,7 +95,7 @@ class _AttendenceDetailState extends State<AttendenceDetail> {
                       left: 62,
                       top: 23,
                       child: Text(
-                        currentDate, // Use the current date
+                        date, // Use the current date
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -142,7 +140,7 @@ class _AttendenceDetailState extends State<AttendenceDetail> {
                       left: 263,
                       top: 23,
                       child: Text(
-                        currentDay, // Display the current day
+                        day, // Display the current day
                         style: const TextStyle(
                           color: Color(0xFF727374),
                           fontSize: 12,
