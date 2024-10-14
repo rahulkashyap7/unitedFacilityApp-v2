@@ -131,7 +131,7 @@ class ExitManagement extends StatelessWidget {
                   ),
                   Divider(),
                   Text(
-                    privacyPolicyTexts.privacyPolicyFooter,
+                    exitManagementText.exitFooter,
                     style: TextStyle(fontSize: 11), // Regular text style
                   ),
                 ],

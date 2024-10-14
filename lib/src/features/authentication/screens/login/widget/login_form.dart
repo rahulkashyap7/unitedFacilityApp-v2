@@ -76,13 +76,12 @@ class _UflLoginFormState extends State<UflLoginForm> {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
-        "email": emailController.text,
-        "password": passwordController.text,
-        "locationId": locationController
+      body: jsonEncode({
+        "email": emailController.text.trim(),
+        "password": passwordController.text.trim(),
+        "locationId": locationController,
       }),
     );
-    print("after process...");
     final data = jsonDecode(response.body);
     print("response: $data :: ${data['data']}");
     if (data['status'] == 200) {
@@ -107,6 +106,10 @@ class _UflLoginFormState extends State<UflLoginForm> {
       await prefs.setString("employeeLoc", empLocation);
 
       Get.to(() => const DashboardScreen());
+    } else if (data['status']==401){
+      Get.snackbar(
+          'Error', data['msg'],
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 

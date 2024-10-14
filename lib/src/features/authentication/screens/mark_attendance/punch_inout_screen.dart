@@ -19,6 +19,9 @@ class PunchInOutScreen extends StatefulWidget {
 }
 
 class _PunchInOutScreenState extends State<PunchInOutScreen> {
+  var formatter = DateFormat('yyyy-MM-dd');
+  var now = DateTime.now();
+
   late bool _serviceEnabled;
   late PermissionStatus _permissionGranted;
   late Location location; // Declare location variable
@@ -35,6 +38,8 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
   DateTime? punchInDateTime;
   DateTime? punchOutDateTime;
 
+  bool resetScreen = false;
+
   double lat = 0.0;
   double long = 0.0;
   bool isLocResolved = false; // Track location resolution status
@@ -43,6 +48,8 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
   final double _geofenceRadius = 100; // 100 meters
   bool _isWithinGeofence = false; // Track if the user is within the geofence
   bool _geofenceAlertShown = false;
+
+  Timer? midnightTimer; // Timer for midnight reset
 
   @override
   void initState() {
@@ -100,6 +107,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
 
   @override
   void dispose() {
+    midnightTimer?.cancel(); // Cancel the timer when disposing
     _locationSubscription.cancel(); // Cancel the subscription when disposing
     super.dispose();
   }
@@ -153,26 +161,46 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
 
   Future<void> _loadSavedState() async {
     final prefs = await SharedPreferences.getInstance();
+
+    bool? tmpResetVal = prefs.getBool("resetScreen");
+    String curDate = formatter.format(now);
+    String? storedDate = prefs.getString("todayDate");
+
+    final savedPunchInTime = prefs.getString('punchInTime');
+    final savedPunchOutTime = prefs.getString('punchOutTime');
+
+
+    print("inside loadstate: $tmpResetVal $curDate $storedDate");
+
+    if (storedDate == null) {
+      prefs.getString("todayDate");
+    }
+
     setState(() {
-      final savedPunchInTime = prefs.getString('punchInTime');
-      if (savedPunchInTime != null) {
-        punchInDateTime = DateTime.parse(savedPunchInTime);
-        punchInTime = DateFormat('HH:mm:ss').format(punchInDateTime!);
-        punchInStatus = 'Punched In';
-        isPunchedIn = true;
+      if (tmpResetVal == null) {
+        // first day
+        prefs.setBool("resetScreen", false);
+      } else if (tmpResetVal && curDate != storedDate) {
+        _resetPunchStates();
+      } else {
+        if (savedPunchInTime != null) {
+          punchInDateTime = DateTime.parse(savedPunchInTime);
+          punchInTime = DateFormat('HH:mm:ss').format(punchInDateTime!);
+          punchInStatus = 'Punched In';
+          isPunchedIn = true;
+        }
+
+
+        if (savedPunchOutTime != null) {
+          punchOutDateTime = DateTime.parse(savedPunchOutTime);
+          punchOutTime = DateFormat('HH:mm:ss').format(punchOutDateTime!);
+          punchOutStatus = 'Punched Out';
+          isPunchedOut = true;
+        }
+
+        isPunchedIn = prefs.getBool('isPunchedIn') ?? false;
+        isPunchedOut = prefs.getBool('isPunchedOut') ?? false;
       }
-
-      final savedPunchOutTime = prefs.getString('punchOutTime');
-      if (savedPunchOutTime != null) {
-        punchOutDateTime = DateTime.parse(savedPunchOutTime);
-        punchOutTime = DateFormat('HH:mm:ss').format(punchOutDateTime!);
-        punchOutStatus = 'Punched Out';
-        isPunchedOut = true;
-      }
-
-      isPunchedIn = prefs.getBool('isPunchedIn') ?? false;
-      isPunchedOut = prefs.getBool('isPunchedOut') ?? false;
-
       _calculateWorkingHours();
     });
   }
@@ -199,16 +227,15 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
+        body: jsonEncode({
           "employeeId": Globals.employeeId.toString(),
           "time": punchInDateTime.toString(),
-          "latitude": lat.toString(),
-          "longitude": long.toString()
+          "latitude": lat,
+          "longitude": long
         }),
       );
       print("getting punchin data: $response");
       setState(() {
-        // rendering
         punchInTime = DateFormat('HH:mm:ss').format(punchInDateTime!);
         punchInStatus = 'Punched In';
         isPunchedIn = true;
@@ -227,38 +254,31 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
+        body: jsonEncode({
           "employeeId": Globals.employeeId.toString(),
           "time": punchOutDateTime.toString(),
-          "latitude": lat.toString(),
-          "longitude": long.toString()
+          "latitude": lat,
+          "longitude": long
         }),
       );
-      print("getting punchout data: $response");
-      setState(() {
-        punchOutTime = DateFormat('HH:mm:ss').format(punchOutDateTime!);
-        punchOutStatus = 'Punched Out';
-        isPunchedOut = true;
-        _calculateWorkingHours();
-      });
-      _saveState();
+      final data = jsonDecode(response.body);
+      if (data['status'] == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool("resetScreen", true);
 
-      // Check if punch-in and punch-out are on different days
-      if (punchOutDateTime!.day != punchInDateTime!.day) {
-        // Clear the saved state
-        await _clearSavedState();
-        // Reset button states
-        _resetPunchStates();
+        String formattedDate = formatter.format(now);
+
+        await prefs.setString("todayDate", formattedDate);
+
+        setState(() {
+          punchOutTime = DateFormat('HH:mm:ss').format(punchOutDateTime!);
+          punchOutStatus = 'Punched Out';
+          isPunchedOut = true;
+          _calculateWorkingHours();
+        });
+        _saveState();
       }
     }
-  }
-
-  Future<void> _clearSavedState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('punchInTime');
-    await prefs.remove('punchOutTime');
-    await prefs.remove('isPunchedIn');
-    await prefs.remove('isPunchedOut');
   }
 
   void _resetPunchStates() {
@@ -268,7 +288,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
       punchInTime = '--:--:--'; // Reset punch in time display
       punchOutTime = '--:--:--'; // Reset punch out time display
       punchInStatus = 'Not Punched In'; // Reset punch in status display
-      punchOutStatus = 'Not Punched Out'; // Reset punch out status display
+      punchOutStatus = 'Not Punched Out';
     });
   }
 
@@ -472,7 +492,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
       height: MediaQuery.of(context).size.height * 0.3,
       decoration: BoxDecoration(
         color: Colors.white,
-        // borderRadius: BorderRadius.circular(11),
         border: Border.all(color: const Color(0xFFD9D9D9)),
       ),
       child: SizedBox(

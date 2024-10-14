@@ -20,17 +20,27 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final Map<String, String> userInfo = HashMap();
+  bool isLoading = true; // Loading state
 
   void fetchUserData() async {
     String url = "${Globals.baseUrl}/profile?id=${Globals.employeeId}";
     print("url: $url");
+
+    // Set loading to true before the request
+    setState(() {
+      isLoading = true;
+    });
+
     http.Response response = await http.get(
-        Uri.parse('${Globals.baseUrl}/profile?id=${Globals.employeeId}'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        });
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
     final data = jsonDecode(response.body);
     print("response in profile: $data :: ${data['data']}");
+
     if (data['status'] == 200) {
       setState(() {
         userInfo['name'] = data['data']['fullname'];
@@ -40,12 +50,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userInfo['position'] = data['data']['designation'];
         userInfo['gender'] = data['data']['gender'];
         userInfo['location'] = 'NSP'; // TODO from DB
+        isLoading = false; // Set loading to false after the data is loaded
+      });
+    } else {
+      // Handle error case
+      setState(() {
+        isLoading = false; // Set loading to false in case of error
       });
     }
   }
 
   @override
   void initState() {
+    super.initState();
     userInfo['name'] = "";
     userInfo['email'] = "";
     userInfo['dob'] = "";
@@ -55,7 +72,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     userInfo['location'] = ''; // TODO from DB
 
     fetchUserData();
-    super.initState();
   }
 
   @override
@@ -65,87 +81,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
         showBackArrow: true,
         title: Text('Profile'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(UflSizes.defaultSpace),
-        child: Column(
-          children: [
-            //--- Profile Picture
-            const SizedBox(
-              width: double.infinity,
+      body: isLoading // Check if loading
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Color(0xFFEAA040)), // Set custom color
+              ), // Show loading indicator
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(UflSizes.defaultSpace),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 40, // Adjust the radius as needed
-                    backgroundColor:
-                        Colors.grey, // Background color for the icon
-                    child: Icon(
-                      Iconsax.user, // User circle icon
-                      color: Colors.white,
-                      size: 40, // Adjust size as needed
+                  //--- Profile Picture
+                  const SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 40, // Adjust the radius as needed
+                          backgroundColor:
+                              Colors.grey, // Background color for the icon
+                          child: Icon(
+                            Iconsax.user, // User circle icon
+                            color: Colors.white,
+                            size: 40, // Adjust size as needed
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  //--- Details
+                  const SizedBox(height: UflSizes.spaceBtwItems / 2),
+                  const Divider(),
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+
+                  //--- Heading Profile Info
+                  const UflSectionHeading(
+                      title: 'Profile Information', showActionButton: false),
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Name',
+                      value: userInfo['name']!),
+                  UflProfileMenu(
+                    onPressed: () {},
+                    title: 'Employee ID',
+                    value: Globals.employeeId,
+                  ),
+
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+                  const Divider(),
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+
+                  //--- Heading Personal Info
+                  const UflSectionHeading(
+                      title: 'Personal Information', showActionButton: false),
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'E-mail',
+                      value: userInfo['email']!),
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Date Of Birth',
+                      value: userInfo['dob']!),
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Department',
+                      value: userInfo['department']!),
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Position',
+                      value: userInfo['position']!),
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Gender',
+                      value: userInfo['gender']!),
+                  UflProfileMenu(
+                      onPressed: () {},
+                      title: 'Location',
+                      value: Globals.empLocation),
+                  const Divider(),
+                  const SizedBox(height: UflSizes.spaceBtwItems),
+
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Get.to(() => const SettingsScreen()),
+                      child: const Text('Close Account',
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  )
                 ],
               ),
             ),
-
-            //--- Details
-            const SizedBox(height: UflSizes.spaceBtwItems / 2),
-            const Divider(),
-            const SizedBox(height: UflSizes.spaceBtwItems),
-
-            //--- Heading Profile Info
-            const UflSectionHeading(
-                title: 'Profile Information', showActionButton: false),
-            const SizedBox(height: UflSizes.spaceBtwItems),
-
-            UflProfileMenu(
-                onPressed: () {}, title: 'Name', value: userInfo['name']!),
-            UflProfileMenu(
-              onPressed: () {},
-              title: 'Employee ID',
-              value: Globals.employeeId,
-            ),
-
-            const SizedBox(height: UflSizes.spaceBtwItems),
-            const Divider(),
-            const SizedBox(height: UflSizes.spaceBtwItems),
-
-            //--- Heading Personal Info
-            const UflSectionHeading(
-                title: 'Personal Information', showActionButton: false),
-            const SizedBox(height: UflSizes.spaceBtwItems),
-
-            UflProfileMenu(
-                onPressed: () {}, title: 'E-mail', value: userInfo['email']!),
-            UflProfileMenu(
-                onPressed: () {}, title: 'Date Of Birth', value: userInfo['dob']!),
-            UflProfileMenu(
-                onPressed: () {},
-                title: 'Department',
-                value: userInfo['department']!),
-            UflProfileMenu(
-                onPressed: () {},
-                title: 'Position',
-                value: userInfo['position']!),
-            UflProfileMenu(
-                onPressed: () {}, title: 'Gender', value: userInfo['gender']!),
-            UflProfileMenu(
-                onPressed: () {},
-                title: 'Location',
-                value: Globals.empLocation),
-            const Divider(),
-            const SizedBox(height: UflSizes.spaceBtwItems),
-
-            Center(
-              child: TextButton(
-                onPressed: () => Get.to(() => const SettingsScreen()),
-                child: const Text('Close Account',
-                    style: TextStyle(color: Colors.red)),
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }
