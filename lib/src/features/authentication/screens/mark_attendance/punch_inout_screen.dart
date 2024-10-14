@@ -169,7 +169,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
     final savedPunchInTime = prefs.getString('punchInTime');
     final savedPunchOutTime = prefs.getString('punchOutTime');
 
-
     print("inside loadstate: $tmpResetVal $curDate $storedDate");
 
     if (storedDate == null) {
@@ -181,6 +180,7 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
         // first day
         prefs.setBool("resetScreen", false);
       } else if (tmpResetVal && curDate != storedDate) {
+        prefs.setBool("resetScreen", false);
         _resetPunchStates();
       } else {
         if (savedPunchInTime != null) {
@@ -189,7 +189,6 @@ class _PunchInOutScreenState extends State<PunchInOutScreen> {
           punchInStatus = 'Punched In';
           isPunchedIn = true;
         }
-
 
         if (savedPunchOutTime != null) {
           punchOutDateTime = DateTime.parse(savedPunchOutTime);
